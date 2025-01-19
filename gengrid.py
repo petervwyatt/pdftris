@@ -1,82 +1,81 @@
-PDF_FILE_TEMPLATE = """
-%PDF-1.6
+PDF_FILE_TEMPLATE = """%PDF-1.6
+%öäüß
 
-% Root
+% Root = Document catalog
 1 0 obj
 <<
-  /AcroForm <<
-    /Fields [ ###FIELD_LIST### ]
-  >>
-  /Pages 2 0 R
-  /OpenAction 17 0 R
-  /Type /Catalog
+	/Type /Catalog
+	/AcroForm << 
+		/Fields [ ###FIELDS_LIST### ] 
+		/DA (/HeBo 0 Tf 0 g 0 G)
+	>>
+	/Pages 2 0 R
+	/OpenAction 6 0 R
+	/Names << 
+		/JavaScript << 
+			/Names [ (DocJS) 6 0 R ] 
+		>>
+	>>
+	/PageLayout /SinglePage
+	/PageMode /UseNone
+	/ViewerPreferences << /FitWindow true >>
 >>
 endobj
 
 2 0 obj
 <<
-  /Count 1
-  /Kids [
-    16 0 R
-  ]
-  /Type /Pages
->>
-
-%% Annots Page 1 (also used as overall fields list)
-21 0 obj
-[
-  ###FIELD_LIST###
-]
-endobj
-
-###FIELDS###
-
-%% Page 1
-16 0 obj
-<<
-  /Annots 21 0 R
-  /Contents 3 0 R
-  /CropBox [
-    0.0
-    0.0
-    612.0
-    792.0
-  ]
-  /MediaBox [
-    0.0
-    0.0
-    612.0
-    792.0
-  ]
-  /Parent 2 0 R
-  /Resources <<
-  >>
-  /Rotate 0
-  /Type /Page
+	/Type /Pages
+	/Count 1
+	/Kids [ 3 0 R ]
 >>
 endobj
 
+% Page 1
 3 0 obj
-<< >>
+<<
+	/Type /Page
+	/Annots [ ###ANNOTS_LIST### ]
+	/Parent 2 0 R
+	/Contents 4 0 R
+	/MediaBox [ 0 0 612 792 ]
+	/Resources << >>
+>>
+endobj
+
+% Page content stream - empty
+4 0 obj
+<< /Length 3 >>
 stream
+q Q
 endstream
 endobj
 
-17 0 obj
+% Font resource 
+5 0 obj
 <<
-  /JS 42 0 R
-  /S /JavaScript
+	/Type /Font
+	/Subtype /Type1
+	/BaseFont /Helvetica-Bold
+	/Encoding /WinAnsiEncoding
 >>
 endobj
 
+% JavaScript Action
+6 0 obj
+<<
+	/Type /Action
+	/S /JavaScript
+	/JS 7 0 R
+>>
+endobj
 
-42 0 obj
-<< >>
+ % Document OpenAction JavaScript
+7 0 obj
+<< /Length 6976 >>
 stream
-
 // Hacky wrapper to work with a callback instead of a string 
 function setInterval(cb, ms) {
-	evalStr = "(" + cb.toString() + ")();";
+	var evalStr = "(" + cb.toString() + ")();";
 	return app.setInterval(evalStr, ms);
 }
 
@@ -131,7 +130,7 @@ var piece_data = [
 	0, 0, 0, 1, 0, -1, -1, -1, 
 
 	// T-block
-	0, 0, -1, 0, 0, -1, 1, 0,  
+	0, 0, -1, 0, 0, -1, 1, 0,	
 	0, 0, 0, 1, 0, -1, 1, 0, 
 	0, 0, -1, 0, 0, 1, 1, 0, 
 	0, 0, -1, 0, 0, 1, 0, -1
@@ -178,7 +177,8 @@ function game_init() {
 		pixel_fields[x] = [];
 		field[x] = [];
 		for (var y = 0; y < ###GRID_HEIGHT###; ++y) {
-			pixel_fields[x][y] = this.getField(`P_${x}_${y}`);
+			var f = "P_" + x + "_" + y;
+			pixel_fields[x][y] = this.getField(f);
 			field[x][y] = 0;
 		}
 	}
@@ -205,7 +205,7 @@ function game_update() {
 
 function game_over() {
 	app.clearInterval(interval);
-	app.alert(`Game over! Score: ${score}\nRefresh to restart.`);
+	app.alert("Game over! Score: " + score + " - refresh to restart.");
 }
 
 function rotate_piece() {
@@ -354,7 +354,7 @@ function lower_piece() {
 }
 
 function draw_updated_score() {
-	this.getField("T_score").value = `Score: ${score}`;
+	this.getField("T_score").value = "Score: " + score
 }
 
 function set_pixel(x, y, state) {
@@ -404,78 +404,56 @@ app.execMenuItem("FitPage");
 endstream
 endobj
 
+###PDF_OBJECTS###
+"""
 
-18 0 obj
-<<
-  /JS 43 0 R
-  /S /JavaScript
->>
-endobj
-
-
-43 0 obj
-<< >>
-stream
-
-
-
-endstream
-endobj
-
+PDF_FILE_TRAILER = """###XREF_ENTRIES###
 trailer
 <<
-  /Root 1 0 R
+	/Root 1 0 R
+	/Size ###OBJ_COUNT###
 >>
-
+startxref
+###START_XREF###
 %%EOF
 """
 
 PLAYING_FIELD_OBJ = """
 ###IDX### obj
 <<
-  /FT /Btn
-  /Ff 1
-  /MK <<
-    /BG [
-      0.8
-    ]
-    /BC [
-      0 0 0
-    ]
-  >>
-  /Border [ 0 0 1 ]
-  /P 16 0 R
-  /Rect [
-    ###RECT###
-  ]
-  /Subtype /Widget
-  /T (playing_field)
-  /Type /Annot
+	/Type /Annot
+	/Subtype /Widget
+	/FT /Btn
+	/F 6 % Bit 2 = hidden, Bit 3 = print
+	/Ff 65538 % Bit 2 = hidden, Bit 17 = pushbutton
+	/MK <<
+		/BG [ 0.8 ]
+		/BC [ 0 0 0 ]
+	>>
+	/Border [ 0 0 1 ]
+	/P 3 0 R
+	/Rect [ ###RECT### ]
+	/T (playing_field)
 >>
 endobj
 """
 
-PIXEL_OBJ = """
+PIXEL_WIDGET_OBJ = """
 ###IDX### obj
 <<
-  /FT /Btn
-  /Ff 1
-  /MK <<
-    /BG [
-      ###COLOR###
-    ]
-    /BC [
-      0.5 0.5 0.5
-    ]
-  >>
-  /Border [ 0 0 1 ]
-  /P 16 0 R
-  /Rect [
-    ###RECT###
-  ]
-  /Subtype /Widget
-  /T (P_###X###_###Y###)
-  /Type /Annot
+	/Type /Annot
+	/Subtype /Widget
+	/FT /Btn
+	/F 6 % Bit 2 = hidden, Bit 3 = print
+	/Ff 65538 % Bit 2 = hidden, Bit 17 = pushbutton
+	/MK <<
+		/BG [ ###COLOR### ]
+		/BC [ 0.5 0.5 0.5 ]
+	>>
+	/Border [ 0 0 1 ]
+	/P 3 0 R
+	/Rect [ ###RECT### ]
+	/T (P_###X###_###Y###)
 >>
 endobj
 """
@@ -483,105 +461,84 @@ endobj
 BUTTON_AP_STREAM = """
 ###IDX### obj
 <<
-  /BBox [ 0.0 0.0 ###WIDTH### ###HEIGHT### ]
-  /FormType 1
-  /Matrix [ 1.0 0.0 0.0 1.0 0.0 0.0]
-  /Resources <<
-    /Font <<
-      /HeBo 10 0 R
-    >>
-    /ProcSet [ /PDF /Text ]
-  >>
-  /Subtype /Form
-  /Type /XObject
+	/Type /XObject
+	/Subtype /Form
+	/BBox [ 0 0 ###WIDTH### ###HEIGHT### ]
+	/FormType 1
+	/Matrix [ 1 0 0 1 0 0 ]
+	/Resources << /Font << /HeBo 5 0 R >> >>
+	/Length ###LENGTH###
 >>
 stream
 q
-0.75 g
-0 0 ###WIDTH### ###HEIGHT### re
-f
+	0.75 g
+	0 0 ###WIDTH### ###HEIGHT### re
+	f
 Q
 q
-1 1 ###WIDTH### ###HEIGHT### re
-W
-n
-BT
-/HeBo 12 Tf
-0 g
-10 8 Td
-(###TEXT###) Tj
-ET
+	1 1 ###WIDTH### ###HEIGHT### re
+	W
+	n
+	BT
+		/HeBo 12 Tf
+		0 g
+		10 8 Td
+		(###TEXT###) Tj
+	ET
 Q
 endstream
 endobj
 """
 
-BUTTON_OBJ = """
+BUTTON_WIDGET_OBJ = """
 ###IDX### obj
 <<
-  /A <<
-	  /JS ###SCRIPT_IDX### R
-	  /S /JavaScript
+	/Type /Annot
+	/Subtype /Widget
+	/FT /Btn
+	/A <<
+		/Type /Action
+		/JS (###SCRIPT###)
+		/S /JavaScript
 	>>
-  /AP <<
-    /N ###AP_IDX### R
-  >>
-  /F 4
-  /FT /Btn
-  /Ff 65536
-  /MK <<
-    /BG [
-      0.75
-    ]
-    /CA (###LABEL###)
-  >>
-  /P 16 0 R
-  /Rect [
-    ###RECT###
-  ]
-  /Subtype /Widget
-  /T (###NAME###)
-  /Type /Annot
+	/AP << /N ###AP_IDX### R >>
+	/F 3
+	/Ff 65536 % Bit 17 = pushbutton
+	/MK <<
+		/BG [ 0.75 ]
+		/CA (###LABEL###)
+	>>
+	/P 3 0 R
+	/Rect [ ###RECT### ]
+	/T (###NAME###)
 >>
 endobj
 """
 
-TEXT_OBJ = """
+TEXT_WIDGET_OBJ = """
 ###IDX### obj
 <<
+	/Type /Annot
+	/Subtype /Widget
+	/FT /Tx
 	/AA <<
 		/K <<
-			/JS ###SCRIPT_IDX### R
+			/Type /Action
+			/JS (###SCRIPT###)
 			/S /JavaScript
 		>>
 	>>
-	/F 4
-	/FT /Tx
-	/MK <<
-	>>
+	/MK << >>
+	/F 3
+	/Ff 0
 	/MaxLen 0
-	/P 16 0 R
-	/Rect [
-		###RECT###
-	]
-	/Subtype /Widget
+	/P 3 0 R
+	/Rect [ ###RECT### ]
 	/T (###NAME###)
 	/V (###LABEL###)
-	/Type /Annot
 >>
 endobj
 """
-
-STREAM_OBJ = """
-###IDX### obj
-<< >>
-stream
-###CONTENT###
-endstream
-endobj
-"""
-
-# p1 = PIXEL_OBJ.replace("###IDX###", "50 0").replace("###COLOR###","1 0 0").replace("###RECT###", "460 700 480 720")
 
 PX_SIZE = 20
 GRID_WIDTH = 10
@@ -589,14 +546,28 @@ GRID_HEIGHT = 20
 GRID_OFF_X = 200
 GRID_OFF_Y = 350
 
-fields_text = ""
-field_indexes = []
-obj_idx_ctr = 50
+pdf_objects = ""
+annots_list = []
+field_list = []
+obj_idx_ctr = 8
+first_obj_idx = obj_idx_ctr
 
 def add_field(field):
-	global fields_text, field_indexes, obj_idx_ctr
-	fields_text += field
-	field_indexes.append(obj_idx_ctr)
+	global pdf_objects, field_list, annots_list, obj_idx_ctr
+	pdf_objects += field
+	field_list.append(obj_idx_ctr)
+	annots_list.append(obj_idx_ctr)
+	obj_idx_ctr += 1
+
+def add_annot(annot):
+	global pdf_objects, annots_list, obj_idx_ctr
+	pdf_objects += annot
+	annots_list.append(obj_idx_ctr)
+	obj_idx_ctr += 1
+
+def add_stream(stm):
+	global pdf_objects, obj_idx_ctr
+	pdf_objects += stm
 	obj_idx_ctr += 1
 
 
@@ -609,47 +580,40 @@ add_field(playing_field)
 for x in range(GRID_WIDTH):
 	for y in range(GRID_HEIGHT):
 		# Build object
-		pixel = PIXEL_OBJ
+		pixel = PIXEL_WIDGET_OBJ
 		pixel = pixel.replace("###IDX###", f"{obj_idx_ctr} 0")
 		c = [0, 0, 0]
 		pixel = pixel.replace("###COLOR###", f"{c[0]} {c[1]} {c[2]}")
 		pixel = pixel.replace("###RECT###", f"{GRID_OFF_X+x*PX_SIZE} {GRID_OFF_Y+y*PX_SIZE} {GRID_OFF_X+x*PX_SIZE+PX_SIZE} {GRID_OFF_Y+y*PX_SIZE+PX_SIZE}")
 		pixel = pixel.replace("###X###", f"{x}")
 		pixel = pixel.replace("###Y###", f"{y}")
-
 		add_field(pixel)
 
 def add_button(label, name, x, y, width, height, js):
-	script = STREAM_OBJ;
-	script = script.replace("###IDX###", f"{obj_idx_ctr} 0")
-	script = script.replace("###CONTENT###", js)
-	add_field(script)
-
-	ap_stream = BUTTON_AP_STREAM;
+	ap_stream = BUTTON_AP_STREAM
 	ap_stream = ap_stream.replace("###IDX###", f"{obj_idx_ctr} 0")
 	ap_stream = ap_stream.replace("###TEXT###", label)
 	ap_stream = ap_stream.replace("###WIDTH###", f"{width}")
 	ap_stream = ap_stream.replace("###HEIGHT###", f"{height}")
-	add_field(ap_stream)
+	stm = (ap_stream.encode().find(b"stream") + len("stream"))
+	endstm = ap_stream.encode().find(b"endstream\n")
+	stm_length = endstm	- stm - 1
+	ap_stream = ap_stream.replace("###LENGTH###", f"{stm_length}")
+	add_stream(ap_stream)
 
-	button = BUTTON_OBJ;
+	button = BUTTON_WIDGET_OBJ
 	button = button.replace("###IDX###", f"{obj_idx_ctr} 0")
-	button = button.replace("###SCRIPT_IDX###", f"{obj_idx_ctr-2} 0")
+	button = button.replace("###SCRIPT###", js)
 	button = button.replace("###AP_IDX###", f"{obj_idx_ctr-1} 0")
-	#button = button.replace("###LABEL###", label)
+	button = button.replace("###LABEL###", label)
 	button = button.replace("###NAME###", name if name else f"B_{obj_idx_ctr}")
 	button = button.replace("###RECT###", f"{x} {y} {x + width} {y + height}")
 	add_field(button)
 
 def add_text(label, name, x, y, width, height, js):
-	script = STREAM_OBJ;
-	script = script.replace("###IDX###", f"{obj_idx_ctr} 0")
-	script = script.replace("###CONTENT###", js)
-	add_field(script)
-
-	text = TEXT_OBJ;
+	text = TEXT_WIDGET_OBJ
 	text = text.replace("###IDX###", f"{obj_idx_ctr} 0")
-	text = text.replace("###SCRIPT_IDX###", f"{obj_idx_ctr-1} 0")
+	text = text.replace("###SCRIPT###", js)
 	text = text.replace("###LABEL###", label)
 	text = text.replace("###NAME###", name)
 	text = text.replace("###RECT###", f"{x} {y} {x + width} {y + height}")
@@ -660,19 +624,31 @@ add_button("<", "B_left", GRID_OFF_X + 0, GRID_OFF_Y - 70, 50, 50, "move_left();
 add_button(">", "B_right", GRID_OFF_X + 60, GRID_OFF_Y - 70, 50, 50, "move_right();")
 add_button("\\\\/", "B_down", GRID_OFF_X + 30, GRID_OFF_Y - 130, 50, 50, "lower_piece();")
 add_button("SPIN", "B_rotate", GRID_OFF_X + 140, GRID_OFF_Y - 70, 50, 50, "rotate_piece();")
-
 add_button("Start game", "B_start", GRID_OFF_X + (GRID_WIDTH*PX_SIZE)/2-50, GRID_OFF_Y + (GRID_HEIGHT*PX_SIZE)/2-50, 100, 100, "game_init();")
 
-
 add_text("Type here for keyboard controls (WASD)", "T_input", GRID_OFF_X + 0, GRID_OFF_Y - 200, GRID_WIDTH*PX_SIZE, 50, "handle_input(event);")
-
 add_text("Score: 0", "T_score", GRID_OFF_X + GRID_WIDTH*PX_SIZE+10, GRID_OFF_Y + GRID_HEIGHT*PX_SIZE-50, 100, 50, "")
 
-filled_pdf = PDF_FILE_TEMPLATE.replace("###FIELDS###", fields_text)
-filled_pdf = filled_pdf.replace("###FIELD_LIST###", " ".join([f"{i} 0 R" for i in field_indexes]))
-filled_pdf = filled_pdf.replace("###GRID_WIDTH###", f"{GRID_WIDTH}")
+filled_pdf = PDF_FILE_TEMPLATE.replace("###PDF_OBJECTS###", pdf_objects)
+filled_pdf = filled_pdf.replace("###FIELDS_LIST###", " ".join([f"{i} 0 R" for i in field_list]))
+filled_pdf = filled_pdf.replace("###ANNOTS_LIST###", " ".join([f"{i} 0 R" for i in annots_list]))
+filled_pdf = filled_pdf.replace("###GRID_WIDTH###",	f"{GRID_WIDTH}")
 filled_pdf = filled_pdf.replace("###GRID_HEIGHT###", f"{GRID_HEIGHT}")
 
-pdffile = open("out.pdf","w")
-pdffile.write(filled_pdf)
+# Build footer of PDF (cross-reference table, trailer, startxref) and append.
+# Note: obj_idx_ctr is already incremented to 1 plus the last object number
+pdf_as_bytes = filled_pdf.encode()
+footer = PDF_FILE_TRAILER.replace("###OBJ_COUNT###", f"{obj_idx_ctr}")
+footer = footer.replace("###START_XREF###", f"{len(pdf_as_bytes)}")
+xref = f"xref\n0 {obj_idx_ctr}\n0000000000 65535 f \n"
+for x in range(1, obj_idx_ctr):
+	offset = pdf_as_bytes.find(f"{x} 0 obj".encode())
+	xref += f"{offset:010} 00000 n \n"
+footer = footer.replace("###XREF_ENTRIES###", xref)
+filled_pdf += footer
+
+# PDFs are binary! In order to be portable across platform, write as a BINARY file
+# Avoids \n differences (1 or 2 byes) and thus incorrect byte offsets and stream lengths.
+pdffile = open("tris.pdf", "wb")
+pdffile.write(filled_pdf.encode())
 pdffile.close()
