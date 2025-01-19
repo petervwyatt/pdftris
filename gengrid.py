@@ -71,7 +71,7 @@ endobj
 
  % Document OpenAction JavaScript
 7 0 obj
-<< /Length 6976 >>
+<< /Length 6922 >>
 stream
 // Hacky wrapper to work with a callback instead of a string 
 function setInterval(cb, ms) {
@@ -397,10 +397,6 @@ function game_tick() {
 
 // Hide controls to start with
 set_controls_visibility(false);
-
-// Zoom to fit (on FF)
-app.execMenuItem("FitPage");
-
 endstream
 endobj
 
@@ -424,8 +420,8 @@ PLAYING_FIELD_OBJ = """
 	/Type /Annot
 	/Subtype /Widget
 	/FT /Btn
-	/F 6 % Bit 2 = hidden, Bit 3 = print
-	/Ff 65538 % Bit 2 = hidden, Bit 17 = pushbutton
+	/F 1  % Bit 1 = invisible, Bit 2 = hidden, Bit 3 = print
+	/Ff 1 % Bit 1 = invisible, Bit 2 = hidden, Bit 17 = pushbutton
 	/MK <<
 		/BG [ 0.8 ]
 		/BC [ 0 0 0 ]
@@ -444,8 +440,8 @@ PIXEL_WIDGET_OBJ = """
 	/Type /Annot
 	/Subtype /Widget
 	/FT /Btn
-	/F 6 % Bit 2 = hidden, Bit 3 = print
-	/Ff 65538 % Bit 2 = hidden, Bit 17 = pushbutton
+	/F 1  % Bit 1 = invisible, Bit 2 = hidden
+	/Ff 1 % Bit 1 = invisible, Bit 2 = hidden, Bit 17 = pushbutton
 	/MK <<
 		/BG [ ###COLOR### ]
 		/BC [ 0.5 0.5 0.5 ]
@@ -476,9 +472,7 @@ q
 	f
 Q
 q
-	1 1 ###WIDTH### ###HEIGHT### re
-	W
-	n
+	1 1 ###WIDTH### ###HEIGHT### re W n
 	BT
 		/HeBo 12 Tf
 		0 g
@@ -502,7 +496,7 @@ BUTTON_WIDGET_OBJ = """
 		/S /JavaScript
 	>>
 	/AP << /N ###AP_IDX### R >>
-	/F 3
+	/F 4
 	/Ff 65536 % Bit 17 = pushbutton
 	/MK <<
 		/BG [ 0.75 ]
@@ -529,7 +523,7 @@ TEXT_WIDGET_OBJ = """
 		>>
 	>>
 	/MK << >>
-	/F 3
+	/F 4
 	/Ff 0
 	/MaxLen 0
 	/P 3 0 R
